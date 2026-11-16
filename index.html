@@ -895,7 +895,7 @@ function viewOrderNew(){
   var h = head("Tạo đơn / Báo giá mới", "Giá tính theo kích thước: diện tích (ngang × cao × số bộ) × đơn giá/m² của loại rèm, cộng phụ kiện nếu có. Khách đặt cọc bao nhiêu thì nhập số tiền cọc bấy nhiêu — không cố định tỷ lệ. Ngay tại đây cũng xuất được báo giá & hóa đơn PDF hoặc in khổ A5.", true);
   h += '<div class="grid" style="grid-template-columns:1.25fr .85fr;gap:16px;align-items:start"><div class="card card-pad">';
   h += '<div class="form-grid">'
-    + '<div class="fld"><label>Khách hàng</label><select class="sel" id="f-cust">' + DB.customers.map(function(c){ return '<option value="' + c.id + '">' + esc(c.name) + ' — ' + esc(c.phone) + '</option>'; }).join("") + '<option value="__new">+ Khách mới…</option></select></div>'
+    + '<div class="fld"><label>Khách hàng</label><select class="sel" id="f-cust"><option value="" selected disabled hidden>— Chọn khách hàng —</option>' + DB.customers.map(function(c){ return '<option value="' + c.id + '">' + esc(c.name) + ' — ' + esc(c.phone) + '</option>'; }).join("") + '<option value="__new">+ Khách mới…</option></select></div>'
     + '<div class="fld" id="wrap-newcust" style="display:none"><label>Tên khách mới</label><input class="inp" id="f-newcust" placeholder="VD: Anh Tuấn — 09xx xxx xxx"/></div>'
     + '<div class="fld"><label>Loại rèm</label><select class="sel" id="f-type">' + Object.keys(TYPES).map(function(k){ return '<option value="' + k + '"' + (state.preType===k ? ' selected' : '') + '>' + TYPES[k].name + ' — ' + fmt(TYPES[k].price) + '/m²</option>'; }).join("") + '</select></div>'
     + '<div class="fld"><label>Ngày hẹn lắp</label><input class="inp" id="f-install" type="text" value="20/11/2026"/></div>'
@@ -1730,6 +1730,7 @@ document.addEventListener("click", function(ev){
     var r = calcOrder();
     if (r.area<=0 || r.qty<=0){ toast("Vui lòng nhập kích thước & số bộ hợp lệ."); return; }
     var custSel = document.getElementById("f-cust").value;
+    if (!custSel){ toast("Vui lòng chọn khách hàng trước khi tạo đơn (hoặc chọn '+ Khách mới…')."); return; }
     var depAmt = Math.round(parseFloat(document.getElementById("f-depamt").value)||0); if (depAmt<0) depAmt=0; if (depAmt>r.total) depAmt=r.total; var dep = depAmt>0;
     var installD = document.getElementById("f-install").value.trim() || "20/11/2026";
     var noteD = document.getElementById("f-note").value.trim();
@@ -1768,6 +1769,7 @@ document.addEventListener("click", function(ev){
     } else finishCreate(custSel);
   }
   else if (act==="form-doc"){
+    if (!document.getElementById("f-cust").value){ toast("Vui lòng chọn khách hàng trước khi xuất báo giá / hóa đơn."); return; }
     var fo = formDocOrder();
     if (!fo.valid){ toast("Vui lòng nhập kích thước & số bộ hợp lệ trước khi xuất chứng từ."); return; }
     if (el.getAttribute("data-mode")==="pdf") exportDocPDF(fo, el.getAttribute("data-kind"));
