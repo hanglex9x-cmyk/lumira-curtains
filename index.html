@@ -892,21 +892,22 @@ function orderDeleteModal(o){
 
 /* ================= TẠO ĐƠN / BÁO GIÁ ================= */
 function viewOrderNew(){
+  var pt = state.preType; state.preType = null;
   var h = head("Tạo đơn / Báo giá mới", "Giá tính theo kích thước: diện tích (ngang × cao × số bộ) × đơn giá/m² của loại rèm, cộng phụ kiện nếu có. Khách đặt cọc bao nhiêu thì nhập số tiền cọc bấy nhiêu — không cố định tỷ lệ. Ngay tại đây cũng xuất được báo giá & hóa đơn PDF hoặc in khổ A5.", true);
   h += '<div class="grid" style="grid-template-columns:1.25fr .85fr;gap:16px;align-items:start"><div class="card card-pad">';
   h += '<div class="form-grid">'
     + '<div class="fld"><label>Khách hàng</label><select class="sel" id="f-cust"><option value="" selected disabled hidden>— Chọn khách hàng —</option>' + DB.customers.map(function(c){ return '<option value="' + c.id + '">' + esc(c.name) + ' — ' + esc(c.phone) + '</option>'; }).join("") + '<option value="__new">+ Khách mới…</option></select></div>'
     + '<div class="fld" id="wrap-newcust" style="display:none"><label>Tên khách mới</label><input class="inp" id="f-newcust" placeholder="VD: Anh Tuấn — 09xx xxx xxx"/></div>'
-    + '<div class="fld"><label>Loại rèm</label><select class="sel" id="f-type">' + Object.keys(TYPES).map(function(k){ return '<option value="' + k + '"' + (state.preType===k ? ' selected' : '') + '>' + TYPES[k].name + ' — ' + fmt(TYPES[k].price) + '/m²</option>'; }).join("") + '</select></div>'
-    + '<div class="fld"><label>Ngày hẹn lắp</label><input class="inp" id="f-install" type="text" value="20/11/2026"/></div>'
-    + '<div class="fld"><label>Chiều ngang (m)</label><input class="inp" id="f-w" type="number" min="0.3" step="0.1" value="2.5"/></div>'
-    + '<div class="fld"><label>Chiều cao (m)</label><input class="inp" id="f-h" type="number" min="0.3" step="0.1" value="2.6"/></div>'
-    + '<div class="fld"><label>Số bộ</label><input class="inp" id="f-qty" type="number" min="1" step="1" value="2"/></div>'
+    + '<div class="fld"><label>Loại rèm</label><select class="sel" id="f-type"><option value=""' + (pt ? '' : ' selected') + ' disabled hidden>— Chọn loại rèm —</option>' + Object.keys(TYPES).map(function(k){ return '<option value="' + k + '"' + (pt===k ? ' selected' : '') + '>' + TYPES[k].name + ' — ' + fmt(TYPES[k].price) + '/m²</option>'; }).join("") + '</select></div>'
+    + '<div class="fld"><label>Ngày hẹn lắp</label><input class="inp" id="f-install" type="text" placeholder="VD: 25/11/2026"/></div>'
+    + '<div class="fld"><label>Chiều ngang (m)</label><input class="inp" id="f-w" type="number" min="0.3" step="0.1" placeholder="VD: 2.5"/></div>'
+    + '<div class="fld"><label>Chiều cao (m)</label><input class="inp" id="f-h" type="number" min="0.3" step="0.1" placeholder="VD: 2.6"/></div>'
+    + '<div class="fld"><label>Số bộ</label><input class="inp" id="f-qty" type="number" min="1" step="1" placeholder="VD: 2"/></div>'
     + '<div class="fld"><label>Phụ kiện thêm</label><select class="sel" id="f-acc">' + ACCESSORIES.map(function(a){ return '<option value="' + a.id + '">' + a.name + (a.price ? ' — ' + fmt(a.price) + '/' + a.unit : '') + '</option>'; }).join("") + '</select></div>'
-    + '<div class="fld"><label>Số lượng phụ kiện</label><input class="inp" id="f-accqty" type="number" min="0" step="0.5" value="0"/><div class="hint">Tính theo m dài (thanh ray) hoặc số bộ (động cơ).</div></div>'
+    + '<div class="fld"><label>Số lượng phụ kiện</label><input class="inp" id="f-accqty" type="number" min="0" step="0.5" placeholder="0"/><div class="hint">Tính theo m dài (thanh ray) hoặc số bộ (động cơ).</div></div>'
     + '<div class="fld"><label>Ghi chú</label><input class="inp" id="f-note" placeholder="Màu vải, vị trí lắp…"/></div>'
     + '</div>';
-  h += '<div class="fld" style="margin-top:14px;max-width:360px"><label>Số tiền khách đặt cọc (đ)</label><input class="inp" id="f-depamt" type="number" min="0" step="1000" value="0"/><div class="hint">Khách cọc bao nhiêu nhập bấy nhiêu — không cố định %. Cọc lớn hơn 0: đơn chuyển sang “Đã cọc” và tự tạo lệnh sản xuất. Để 0 nếu khách chưa cọc.</div></div>';
+  h += '<div class="fld" style="margin-top:14px;max-width:360px"><label>Số tiền khách đặt cọc (đ)</label><input class="inp" id="f-depamt" type="number" min="0" step="1000" placeholder="0"/><div class="hint">Khách cọc bao nhiêu nhập bấy nhiêu — không cố định %. Cọc lớn hơn 0: đơn chuyển sang “Đã cọc” và tự tạo lệnh sản xuất. Để 0 nếu khách chưa cọc.</div></div>';
   h += '<div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap"><button class="btn primary" data-act="create-order">' + ICONS.check + ' Tạo đơn hàng</button><button class="btn" data-act="go" data-id="orders">Xem danh sách đơn</button></div>';
   h += '<div class="doc-export"><div class="doc-export-h">' + ICONS.file + ' Báo giá &amp; hóa đơn</div>'
     + '<div class="doc-btns">'
@@ -916,7 +917,7 @@ function viewOrderNew(){
     + '<button class="btn" data-act="form-doc" data-kind="invoice" data-mode="print">' + ICONS.print + ' In hóa đơn A5</button>'
     + '</div><p class="tiny muted" style="margin:9px 0 0">Xuất thẳng từ số liệu đang nhập ở form — tải file PDF về máy hoặc xem trước bản in khổ A5, không cần tạo đơn trước. Sau khi tạo đơn, mở chi tiết đơn trong danh sách để xuất lại bất cứ lúc nào.</p></div>';
   h += '</div>';
-  h += '<div style="display:grid;gap:16px"><div class="card" style="overflow:hidden;padding:0"><img id="f-img" src="' + TYPES[state.preType||"vai2lop"].img + '" alt="Ảnh mẫu loại rèm đang chọn" style="width:100%;height:180px;object-fit:cover"/><div class="card-pad" style="padding-top:13px"><b id="f-typename">' + TYPES[state.preType||"vai2lop"].name + '</b><p class="small muted" style="margin:3px 0 0" id="f-typedesc">' + TYPES[state.preType||"vai2lop"].desc + '</p></div></div>'
+  h += '<div style="display:grid;gap:16px"><div class="card" style="overflow:hidden;padding:0"><img id="f-img"' + (pt ? ' src="' + TYPES[pt].img + '"' : '') + ' alt="Ảnh mẫu loại rèm đang chọn" style="width:100%;height:180px;object-fit:cover' + (pt ? '' : ';display:none') + '"/><div id="f-imgph" style="height:180px;' + (pt ? 'display:none' : 'display:flex') + ';align-items:center;justify-content:center;background:linear-gradient(135deg,#0B1F4D,#17356e);color:#D4AF37;font-weight:600;letter-spacing:.4px">ẢNH MẪU LOẠI RÈM</div><div class="card-pad" style="padding-top:13px"><b id="f-typename">' + (pt ? TYPES[pt].name : 'Chưa chọn loại rèm') + '</b><p class="small muted" style="margin:3px 0 0" id="f-typedesc">' + (pt ? TYPES[pt].desc : 'Chọn loại rèm ở form bên trái để xem ảnh mẫu, mô tả và đơn giá.') + '</p></div></div>'
     + '<div class="calc-box"><div class="row"><span>Diện tích</span><b class="num" id="c-area">—</b></div><div class="row"><span>Tiền rèm</span><b class="num" id="c-fabric">—</b></div><div class="row"><span>Tiền phụ kiện</span><b class="num" id="c-acc">—</b></div><div class="row total"><span>Thành tiền</span><span class="num" id="c-total">—</span></div><div class="row"><span>Khách đặt cọc</span><b class="num" id="c-dep">—</b></div><div class="row"><span>Còn lại khi lắp xong</span><b class="num" id="c-rest">—</b></div></div></div></div>';
   return h;
 }
@@ -928,7 +929,7 @@ function calcOrder(){
   var acc = ACCESSORIES.find(function(a){ return a.id===document.getElementById("f-acc").value; });
   var accQty = parseFloat(document.getElementById("f-accqty").value)||0;
   var area = Math.round(w*hh*qty*100)/100;
-  var fabric = Math.round(area*TYPES[type].price);
+  var fabric = Math.round(area*(TYPES[type] ? TYPES[type].price : 0));
   var accAmt = Math.round(acc.price*accQty);
   var total = fabric + accAmt;
   document.getElementById("c-area").textContent = fmtN(area) + " m²";
@@ -985,7 +986,7 @@ function formDocOrder(){
   return { id: "DH" + (2600 + DB.orders.length + 1), custName: c.name, custPhone: c.phone, custAddr: c.addr,
     type: r.type, w: r.w, h: r.h, qty: r.qty, area: r.area, acc: r.accAmt>0 ? (r.acc.name + " × " + fmtN(r.accQty) + " " + r.acc.unit) : "", accAmt: r.accAmt,
     total: r.total, collected: Math.max(0, Math.min(depAmt, r.total)), date: "11/11/2026",
-    install: document.getElementById("f-install").value.trim() || "20/11/2026",
+    install: document.getElementById("f-install").value.trim(),
     note: document.getElementById("f-note").value.trim(), valid: r.area>0 && r.qty>0 };
 }
 function orderDocOrder(o){
@@ -1520,10 +1521,16 @@ function bindOrderForm(){
     document.getElementById(id).addEventListener("input", function(){
       if (id==="f-type"){
         var t = TYPES[document.getElementById("f-type").value];
-        document.getElementById("f-img").src = t.img;
-        document.getElementById("f-typename").textContent = t.name;
-        document.getElementById("f-typedesc").textContent = t.desc;
-        state.preType = document.getElementById("f-type").value;
+        var imgEl = document.getElementById("f-img"), phEl = document.getElementById("f-imgph");
+        if (t){
+          imgEl.src = t.img; imgEl.style.display = ""; phEl.style.display = "none";
+          document.getElementById("f-typename").textContent = t.name;
+          document.getElementById("f-typedesc").textContent = t.desc;
+        } else {
+          imgEl.removeAttribute("src"); imgEl.style.display = "none"; phEl.style.display = "flex";
+          document.getElementById("f-typename").textContent = "Chưa chọn loại rèm";
+          document.getElementById("f-typedesc").textContent = "Chọn loại rèm ở form bên trái để xem ảnh mẫu, mô tả và đơn giá.";
+        }
       }
       calcOrder();
     });
@@ -1728,11 +1735,12 @@ document.addEventListener("click", function(ev){
   }
   else if (act==="create-order"){
     var r = calcOrder();
+    if (!r.type){ toast("Vui lòng chọn loại rèm."); return; }
     if (r.area<=0 || r.qty<=0){ toast("Vui lòng nhập kích thước & số bộ hợp lệ."); return; }
     var custSel = document.getElementById("f-cust").value;
     if (!custSel){ toast("Vui lòng chọn khách hàng trước khi tạo đơn (hoặc chọn '+ Khách mới…')."); return; }
     var depAmt = Math.round(parseFloat(document.getElementById("f-depamt").value)||0); if (depAmt<0) depAmt=0; if (depAmt>r.total) depAmt=r.total; var dep = depAmt>0;
-    var installD = document.getElementById("f-install").value.trim() || "20/11/2026";
+    var installD = document.getElementById("f-install").value.trim();
     var noteD = document.getElementById("f-note").value.trim();
     var accName = r.accAmt>0 ? (r.acc.name + " × " + fmtN(r.accQty) + " " + r.acc.unit) : "";
     var finishCreate = function(custId){
@@ -1770,6 +1778,7 @@ document.addEventListener("click", function(ev){
   }
   else if (act==="form-doc"){
     if (!document.getElementById("f-cust").value){ toast("Vui lòng chọn khách hàng trước khi xuất báo giá / hóa đơn."); return; }
+    if (!document.getElementById("f-type").value){ toast("Vui lòng chọn loại rèm trước khi xuất báo giá / hóa đơn."); return; }
     var fo = formDocOrder();
     if (!fo.valid){ toast("Vui lòng nhập kích thước & số bộ hợp lệ trước khi xuất chứng từ."); return; }
     if (el.getAttribute("data-mode")==="pdf") exportDocPDF(fo, el.getAttribute("data-kind"));
