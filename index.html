@@ -1946,6 +1946,26 @@ function installToSheet(i, ov){
 }
 function hydrateFromSheet(resp){
   var d = resp.data || {}; var cfg = resp.config || {};
+  /* Danh mục đồng bộ từ tab SAN_PHAM trên Sheet (nguồn chung với Mini App):
+     sửa tên/giá trên Sheet là ERP dùng theo ngay; sản phẩm bị ẩn trên Sheet
+     (TrangThai = 0) thì ERP cũng ẩn khỏi form tạo đơn nhưng vẫn hiện ở đơn cũ;
+     sản phẩm mới trên Sheet chưa có ảnh mẫu thì dùng ảnh chờ thương hiệu. */
+  var IMG_CHO = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='720' height='480'><rect width='720' height='480' fill='%230B1F4D'/><text x='360' y='225' font-family='Arial' font-size='42' fill='%23D4AF37' text-anchor='middle' font-weight='bold'>LUMIRA CURTAINS</text><text x='360' y='272' font-family='Arial' font-size='23' fill='%23ffffff' text-anchor='middle'>Chưa có ảnh mẫu</text></svg>";
+  (d.SAN_PHAM || []).forEach(function(r){
+    if (!r.MaSP) return;
+    var k = String(r.MaSP).trim();
+    var gia = numV(r.Gia);
+    var tt = String(r.TrangThai == null ? "" : r.TrangThai).trim().toLowerCase();
+    var hidden = (tt === "0" || tt === "ẩn" || tt === "an" || tt === "false");
+    if (TYPES[k]) {
+      if (r.TenSP) TYPES[k].name = String(r.TenSP);
+      if (gia > 0) TYPES[k].price = gia;
+      if (r.MoTa) TYPES[k].desc = String(r.MoTa);
+      TYPES[k].legacy = hidden;
+    } else if (String(r.Loai || "sp").trim().toLowerCase() !== "phukien") {
+      TYPES[k] = { name: String(r.TenSP || k), price: gia, img: IMG_CHO, unit: "m²", desc: String(r.MoTa || ""), legacy: hidden };
+    }
+  });
   var customers = (d.KHACH_HANG || []).map(function(r){ return {id:String(r.MaKH), name:r.TenKH || "", phone:r.SDT || "", addr:r.DiaChi || "", note:r.GhiChu || ""}; });
   var cmap = {}; customers.forEach(function(c){ cmap[c.id] = c; });
   var orders = (d.DON_HANG || []).map(function(r){
